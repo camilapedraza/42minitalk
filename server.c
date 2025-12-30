@@ -6,55 +6,71 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/28 16:29:37 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/12/28 23:08:49 by mpedraza         ###   ########.fr       */
+/*   Updated: 2025/12/30 17:49:30 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// signal, sigemptyset, sigaddset, sigaction, kill, pause, sleep, usleep, getpid
-// write, malloc, free, exit
-
-// Server checklist
-// Display its PID
-// Create an endless loop so that the server can receive signals at any time
-// Receive signals
-// Decrypt signals
-// For each signal received (SIGUSR1 or SIGUSR2) it should take a certain action
-
 #include "minitalk.h"
 
-void	print_msg(int sig)
+void	print_welcome(void)
 {
-	static int				bit_count = 0; // start at bit index 0 from LSB
-	static unsigned char	ch = 0; // initialize to null char
+	pid_t	pid;
 
+	pid = getpid();
+	ft_printf("*******  WELCOME TO MINITALK ******* \n");
+	ft_printf("*                                  * \n");
+	ft_printf("*	     ._.)/\\(._.            * \n");
+	ft_printf("*                                  * \n");
+	ft_printf("* ʕっ•ᴥ•ʔっ SERVER PID: [ %d ] * \n", pid);
+	ft_printf("************************************ \n");
+	ft_printf("To send a message, run:\n", pid);
+	ft_printf("./client %d \"your message\"\n", pid);
+	ft_printf("************************************ \n");
+}
+
+void	set_client_state(t_client *client, pid_t pid, sig_atomic_t bc, char ch)
+{
+	client->pid = pid;
+	client->bit_count = bc;
+	client->ch = ch;
+}
+
+void	print_msg(int sig, siginfo_t *info, void *ucontext)
+{
+	static t_client	client;
+	unsigned char	c;
+
+	(void)ucontext;
+	if (client.pid == 0 || client.pid != info->si_pid)
+		set_client_state(&client, info->si_pid, 0, 0);
 	if (sig == SIGUSR1)
-		ch |= (1 << bit_count); // set bit to 1
-	bit_count++;
-	if (bit_count == 8) // all bits have been set for char
+		client.ch |= (1 << client.bit_count);
+	client.bit_count++;
+	if (client.bit_count < 8)
+		kill(client.pid, SIGUSR1);
+	if (client.bit_count == 8)
 	{
-		// add condition here for when ch == 0?
-		write(1, &ch, 1); // print character
-		bit_count = 0;
-		ch = 0;
+		c = client.ch;
+		write(1, &c, 1);
+		if (client.ch == 0)
+			write(1, "\n", 1);
+		client.bit_count = 0;
+		client.ch = 0;
+		kill(client.pid, SIGUSR1);
 	}
 }
+
 int	main(void)
 {
-	// get PID so client can use it
-	// handle two allowed signals SIGUSR1 and SIGUSR2
-	int					pid;
-	struct sigaction	action;
+	struct sigaction	message;
 
-	action.sa_handler = print_msg;
-	action.sa_flags = SA_RESTART;
-	sigemptyset(&action.sa_mask);
-	sigaction(SIGUSR1, &action, NULL);
-	sigaction(SIGUSR2, &action, NULL);
-	pid = getpid();
-	ft_printf("### Welcome to Minitalk ###\n");
-	ft_printf("Minitalk Server PID:\n%d\n", pid);
-	ft_printf("Run ./client %d \"your message\" to send a message\n", pid);
+	message.sa_flags = SA_RESTART | SA_SIGINFO;
+	sigemptyset(&message.sa_mask);
+	message.sa_sigaction = print_msg;
+	sigaction(SIGUSR1, &message, NULL);
+	sigaction(SIGUSR2, &message, NULL);
+	print_welcome();
 	while (1)
 		pause();
-	return 0;
+	return (0);
 }
