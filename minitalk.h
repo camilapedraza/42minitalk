@@ -6,7 +6,7 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/28 17:28:16 by mpedraza          #+#    #+#             */
-/*   Updated: 2026/01/05 18:12:15 by mpedraza         ###   ########.fr       */
+/*   Updated: 2026/01/05 19:04:55 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 # endif
 
 # ifndef ACK_TIMEOUT
-#  define ACK_TIMEOUT 15000000
+#  define ACK_TIMEOUT 1000000
 # endif
 
 # ifndef ACK_INTERVAL
