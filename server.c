@@ -6,7 +6,7 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/28 16:29:37 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/12/30 17:49:30 by mpedraza         ###   ########.fr       */
+/*   Updated: 2026/01/05 18:02:48 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,14 @@ void	print_msg(int sig, siginfo_t *info, void *ucontext)
 		c = client.ch;
 		write(1, &c, 1);
 		if (client.ch == 0)
+		{
 			write(1, "\n", 1);
+			kill(client.pid, SIGUSR2);
+		}
+		else
+			kill(client.pid, SIGUSR1);
 		client.bit_count = 0;
 		client.ch = 0;
-		kill(client.pid, SIGUSR1);
 	}
 }
 
