@@ -6,7 +6,7 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/28 17:17:16 by mpedraza          #+#    #+#             */
-/*   Updated: 2026/01/05 18:02:42 by mpedraza         ###   ########.fr       */
+/*   Updated: 2026/01/05 18:15:04 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ volatile sig_atomic_t	g_acknowledged = 0;
 
 void	ack_handler(int sig)
 {
-	if (sig == SIGUSR1) 
+	if (sig == SIGUSR1)
 		g_acknowledged = 1;
 	if (sig == SIGUSR2)
 		g_acknowledged = 2;
