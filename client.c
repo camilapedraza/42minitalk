@@ -6,7 +6,7 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/28 17:17:16 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/12/30 17:47:20 by mpedraza         ###   ########.fr       */
+/*   Updated: 2026/01/05 18:02:42 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,10 @@ volatile sig_atomic_t	g_acknowledged = 0;
 
 void	ack_handler(int sig)
 {
-	(void)sig;
-	g_acknowledged = 1;
+	if (sig == SIGUSR1) 
+		g_acknowledged = 1;
+	if (sig == SIGUSR2)
+		g_acknowledged = 2;
 }
 
 static int	ft_atoi(const char *nptr)
@@ -66,10 +68,10 @@ static void	send_char(pid_t pid, char ch)
 			write(2, "Server Error ʕノ•ᴥ•ʔノ ︵ ┻━┻ \n", 48);
 			exit(EXIT_FAILURE);
 		}
-		g_acknowledged = 0;
+		if (g_acknowledged == 1)
+			g_acknowledged = 0;
 		i++;
 	}
-	g_acknowledged = 0;
 }
 
 static void	send_msg(pid_t pid, char *str)
@@ -83,7 +85,8 @@ static void	send_msg(pid_t pid, char *str)
 		i++;
 	}
 	send_char(pid, '\0');
-	write(1, "ʕっ•ᴥ•ʔっ Message Delivered\n", 38);
+	if (g_acknowledged == 2)
+		write(1, "ʕっ•ᴥ•ʔっ Message Delivered\n", 38);
 }
 
 int	main(int ac, char **av)
@@ -95,6 +98,7 @@ int	main(int ac, char **av)
 	sigemptyset(&handshake.sa_mask);
 	handshake.sa_handler = ack_handler;
 	sigaction(SIGUSR1, &handshake, NULL);
+	sigaction(SIGUSR2, &handshake, NULL);
 	if (ac != 3)
 		exit(EXIT_SUCCESS);
 	pid = ft_atoi(av[1]);
