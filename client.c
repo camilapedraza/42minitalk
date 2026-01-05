@@ -6,7 +6,7 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/28 17:17:16 by mpedraza          #+#    #+#             */
-/*   Updated: 2026/01/05 18:15:04 by mpedraza         ###   ########.fr       */
+/*   Updated: 2026/01/05 19:01:05 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ static void	send_char(pid_t pid, char ch)
 		}
 		if (!g_acknowledged)
 		{
-			write(2, "Server Error ʕノ•ᴥ•ʔノ ︵ ┻━┻ \n", 48);
+			write(2, "Server ERROR ʕノ•ᴥ•ʔノ ︵ ┻━┻ \n", 48);
 			exit(EXIT_FAILURE);
 		}
 		if (g_acknowledged == 1)
@@ -87,6 +87,7 @@ static void	send_msg(pid_t pid, char *str)
 	send_char(pid, '\0');
 	if (g_acknowledged == 2)
 		write(1, "ʕっ•ᴥ•ʔっ Message Delivered\n", 38);
+	g_acknowledged = 0;
 }
 
 int	main(int ac, char **av)
@@ -94,14 +95,22 @@ int	main(int ac, char **av)
 	pid_t				pid;
 	struct sigaction	handshake;
 
-	handshake.sa_flags = SA_RESTART | SA_SIGINFO;
+	handshake.sa_flags = SA_RESTART;
 	sigemptyset(&handshake.sa_mask);
 	handshake.sa_handler = ack_handler;
 	sigaction(SIGUSR1, &handshake, NULL);
 	sigaction(SIGUSR2, &handshake, NULL);
 	if (ac != 3)
-		exit(EXIT_SUCCESS);
+	{
+		write(2, "Error: Wrong number of arguments ʕノ•ᴥ•ʔノ ︵ ┻━┻ \n", 69);
+		exit(EXIT_FAILURE);
+	}
 	pid = ft_atoi(av[1]);
+	if (!pid)
+	{
+		write(2, "Error: Invalid Server PID ʕノ•ᴥ•ʔノ ︵ ┻━┻ \n", 62);
+		exit(EXIT_FAILURE);
+	}
 	send_msg(pid, av[2]);
-	return (0);
+	exit(EXIT_SUCCESS);
 }
