@@ -6,17 +6,19 @@
 #    By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/28 18:48:07 by mpedraza          #+#    #+#              #
-#    Updated: 2026/01/06 17:31:12 by mpedraza         ###   ########.fr        #
+#    Updated: 2026/01/06 20:09:38 by mpedraza         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	= minitalk
 
-CC		= cc
-CFLAGS	= -Wall -Wextra -Werror -Iftprintf -D _DEFAULT_SOURCE
+CC				= cc
+CFLAGS			= -Wall -Wextra -Werror -Iftprintf -D _DEFAULT_SOURCE
 
-SRCS	= client.c server.c
-OBJS	= $(SRCS:%.c=%.o)
+SRCS			= client.c server.c
+OBJS			= $(SRCS:%.c=%.o)
+
+FTPRINTF_LIB	= ftprintf/libftprintf.a
 
 all: ${NAME}
 
@@ -25,12 +27,12 @@ ${NAME}: client server
 %.o: %.c
 	${CC} ${CFLAGS} -c $< -o $@
 
-server: server.o ftprintf
+server: server.o $(FTPRINTF_LIB)
 	${CC} ${CFLAGS} server.o -Lftprintf -lftprintf -o server
-client: client.o ftprintf
+client: client.o $(FTPRINTF_LIB)
 	${CC} ${CFLAGS} client.o -Lftprintf -lftprintf -o client
 
-ftprintf:
+$(FTPRINTF_LIB):
 	$(MAKE) -C ftprintf
 
 clean:
@@ -43,4 +45,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re ftprintf server client
+.PHONY: all clean fclean re ftprintf
